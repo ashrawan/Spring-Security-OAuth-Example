@@ -1,0 +1,103 @@
+server:
+  port: 8080
+
+# jdbc and jpa config
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/test?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
+    username: root
+    password: root
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        jdbc:
+          time_zone: UTC
+
+  # Mail Config
+  mail:
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: 'true'
+          timeout: '5000'
+          auth: 'true'
+          connectiontimeout: '5000'
+          writetimeout: '5000'
+    host: smtp.gmail.com
+    username: <<YOUR GMAIL>>
+    password: <<Generate-App-password-for-gmail>> # Google Account, Search "App Passwords", generate password
+    port: '587'
+
+  # freemarker config - used for email templates
+  freemarker:
+    template-loader-path: classpath:/mail-templates
+    suffix: .ftl
+
+  # Spring security oauth2 config
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: <<ClientID>>
+            clientSecret: <<ClientSecret>>
+            redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope: email, profile
+
+          facebook:
+            clientId: <<ClientID>>
+            clientSecret: <<ClientSecret>>
+            redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope: email, public_profile
+
+          github:
+            clientId: <<ClientID>>
+            clientSecret: <<ClientSecret>>
+            redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope: user, user:email
+
+
+# logging config
+logging:
+  level:
+    root: INFO
+    org:
+      springframework:
+        web: DEBUG
+        security: DEBUG
+
+
+# App Custom Properties
+myapp:
+
+  appName: spring security OAuth2 and JWT starter example
+  officialCompanyName: XYZ-Company Inc.
+  officialCompanyDomain: http://localhost:4200
+
+  mail:
+    defaultEmailAddress: example@gmail.com
+    verificationCodeExpirationSeconds: 1800 # 30 minutes
+
+  jwt:
+    secretKey: secret-jwt-key1234
+    isSecretKeyBase64Encoded: false
+    expirationMillis: 3600000
+    shortLivedMillis: 120000
+
+  cors:
+    allowedOrigins: http://localhost:8080,http://localhost:4200
+
+  oauth2:
+    authorizedRedirectOrigins: http://localhost:8080,http://localhost:4200
+    cookieExpireSeconds: 120
+
+  defaults:
+    defaultPageStart: 0
+    defaultPageSize: 50
