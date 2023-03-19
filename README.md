@@ -143,13 +143,13 @@ For all OAuth2 providers, On Successful OAuth2User Authentication Request proces
 
 - If user requests into __SECURED__ endpoints e.g. "/api/userProfile"
     - Requesting WITHOUT token i.e. "Authorization" header
-        - SecurityContext is empty, ` (path request matcher or anyRequest() ) -> .authenticated()` will catch, OR `globalMethodSecurity` will catch
+        - SecurityContext is empty, ` (path request matcher or anyRequest() ) -> .authenticated()` will catch, or will fail from `globalMethodSecurity` expression if defined
         - And forward it to _CustomAuthenticationEntryPoint.java_ for __SC_UNAUTHORIZED__ response
 
     - Requesting WITH token i.e. "Authorization" header has jwt token
         - _JWTAuthenticationFilter.java_ Validates Token and set SecurityContext -> Authentication Object
         - Since, Authentication Object is available, spring security filter continues the flow
-        - Further permission checks are done in spring security Expression-Based Access Control or other Access Control mechanism
+        - Further permission checks are done in spring security Expression-Based Access Control or any configured Access Control mechanisms
 
 `jwtAuthenticationFilter`: A custom filter to validate and parse jwtToken and Set Authentication Object
 
@@ -159,8 +159,8 @@ For all OAuth2 providers, On Successful OAuth2User Authentication Request proces
 
 ## Structure
 
-- By Default, config classes uses Field Injection `@Autowired`, other class uses constructor injection
 - Properties defined in `application.yml` are initialized into `AppProperties.java`, default values are initialized in same class
 - For Multiple properties usage from `AppProperties appProperties`, values are initialized in `@PostConstruct` to avoid code clutter
 - Uses Lombok `@Getter @Setter` for getter/setter generation
-- Exception thrown for authentication ( like BadCredentialsException) and other custom defined exceptions are handled from `@ControllerAdvice`
+- By Default, config classes uses Field Injection `@Autowired`, other class uses constructor injection
+- Exception thrown are handled from `@ControllerAdvice`
