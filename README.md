@@ -1,5 +1,5 @@
 ## Spring Security with OAuth2, and Custom JWT
-- OAuth2 Providers (Google, Facebook, Github), (additional example.yml included)
+- OAuth2 with (Google, Facebook, Github), (additional example.yml included)
 - Additional Custom JWT (register and Login)
 - Email based - register/login, freemarker-templates, registration-verification and password-reset
 
