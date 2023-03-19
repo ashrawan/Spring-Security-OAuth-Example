@@ -1,3 +1,12 @@
+## Spring Security with OAuth2, and Custom JWT
+- OAuth2 Providers (Google, Facebook, Github), (additional example.yml included)
+- Additional Custom JWT (register and Login)
+- Email based - register/login, freemarker-templates, registration-verification and password-reset
+
+ Link:
+- [x] Backend: https://github.com/ashrawan/Spring-Security-OAuth-Example
+- [ ] Frontend: https://github.com/ashrawan/Angular-Security-OAuthJWT-Example
+
 ## Flow Overview:
 
 [ __OAUTH2 CONFIGURATION PROPERTIES__ @see: resources -> _application.yml_ ]
