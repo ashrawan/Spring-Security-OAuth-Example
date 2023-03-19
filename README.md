@@ -4,7 +4,7 @@
 - Email based - register/login, freemarker-templates, registration-verification and password-reset
 
  Link:
-- [x] Backend: https://github.com/ashrawan/Spring-Security-OAuth-Example
+- [x] Viewing Backend: https://github.com/ashrawan/Spring-Security-OAuth-Example
 - [ ] Frontend: https://github.com/ashrawan/Angular-Security-OAuthJWT-Example
 
 ## Flow Overview:
