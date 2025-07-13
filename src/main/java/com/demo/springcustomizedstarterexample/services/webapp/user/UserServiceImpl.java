@@ -81,7 +81,8 @@ public class UserServiceImpl implements UserService {
         if (ObjectUtils.isEmpty(requestUserDTO.getRoles())) {
             requestUserDTO.setRoles(Set.of(AppSecurityUtils.ROLE_DEFAULT));
         }
-        boolean isFromCustomBasicAuth = requestUserDTO.getRegisteredProviderName().equals(requestUserDTO.getRegisteredProviderName());
+        boolean isFromCustomBasicAuth = SecurityEnums.AuthProviderId.app_custom_authentication
+                .equals(requestUserDTO.getRegisteredProviderName());
         if (isFromCustomBasicAuth && requestUserDTO.getPassword() != null) {
             requestUserDTO.setPassword(passwordEncoder.encode(requestUserDTO.getPassword()));
         }
