@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Minimal infrastructure for the Spring Security OAuth example. Each service can be toggled via parameters.
+
+Parameters:
+  DBPassword:
+    Type: String
+    NoEcho: true
+    Description: Database master password
+  HostedZoneName:
+    Type: String
+    Default: example.com.
+    Description: Domain for Route53 record (trailing dot required)
+  EnableS3:
+    Type: String
+    AllowedValues: ["true", "false"]
+    Default: "true"
+    Description: Create the S3 bucket
+  EnableRDS:
+    Type: String
+    AllowedValues: ["true", "false"]
+    Default: "true"
+    Description: Create the RDS instance
+  EnableCache:
+    Type: String
+    AllowedValues: ["true", "false"]
+    Default: "true"
+    Description: Create the ElastiCache cluster
+  EnableDNS:
+    Type: String
+    AllowedValues: ["true", "false"]
+    Default: "true"
+    Description: Create Route53 resources
+  DBInstanceClass:
+    Type: String
+    Default: db.t3.micro
+    Description: RDS instance class
+  CacheNodeType:
+    Type: String
+    Default: cache.t2.micro
+    Description: ElastiCache node type
+
+Conditions:
+  UseS3: !Equals [ !Ref EnableS3, "true" ]
+  UseRDS: !Equals [ !Ref EnableRDS, "true" ]
+  UseCache: !Equals [ !Ref EnableCache, "true" ]
+  UseDNS: !Equals [ !Ref EnableDNS, "true" ]
+
+Resources:
+  AppBucket:
+    Type: AWS::S3::Bucket
+    Condition: UseS3
+    Properties:
+      BucketName: !Sub spring-oauth-example-${AWS::AccountId}
+
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    Condition: UseRDS
+    Properties:
+      DBInstanceIdentifier: spring-security-db
+      AllocatedStorage: 20
+      DBInstanceClass: !Ref DBInstanceClass
+      Engine: MySQL
+      MasterUsername: root
+      MasterUserPassword: !Ref DBPassword
+      DBName: test
+      PubliclyAccessible: true
+      StorageType: gp2
+
+  CacheCluster:
+    Type: AWS::ElastiCache::CacheCluster
+    Condition: UseCache
+    Properties:
+      CacheNodeType: !Ref CacheNodeType
+      Engine: redis
+      NumCacheNodes: 1
+
+  HostedZone:
+    Type: AWS::Route53::HostedZone
+    Condition: UseDNS
+    Properties:
+      Name: !Ref HostedZoneName
+
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    Condition: UseDNS
+    Properties:
+      HostedZoneName: !Ref HostedZoneName
+      Name: app.${HostedZoneName}
+      Type: CNAME
+      TTL: '300'
+      ResourceRecords:
+        - example.com
+
+Outputs:
+  BucketName:
+    Value: !Ref AppBucket
+    Description: S3 bucket storing application assets
+  DBEndpoint:
+    Value: !GetAtt DBInstance.Endpoint.Address
+    Description: RDS endpoint
+

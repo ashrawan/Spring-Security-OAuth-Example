@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Simple RDS MySQL instance for the Spring Security OAuth example.
+
+Parameters:
+  DBName:
+    Type: String
+    Default: test
+  DBUsername:
+    Type: String
+    Default: root
+  DBPassword:
+    Type: String
+    NoEcho: true
+  DBInstanceIdentifier:
+    Type: String
+    Default: spring-security-db
+
+Resources:
+  MyDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: !Ref DBInstanceIdentifier
+      AllocatedStorage: 20
+      DBInstanceClass: db.t3.micro
+      Engine: MySQL
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
+      DBName: !Ref DBName
+      PubliclyAccessible: true
+      StorageType: gp2
+
+Outputs:
+  DBEndpoint:
+    Description: Endpoint of the database
+    Value: !GetAtt MyDB.Endpoint.Address

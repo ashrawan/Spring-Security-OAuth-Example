@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-oauth-example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-oauth-example
+  template:
+    metadata:
+      labels:
+        app: spring-oauth-example
+    spec:
+      containers:
+        - name: spring-oauth-example
+          image: 123456789012.dkr.ecr.us-east-1.amazonaws.com/spring-oauth-example:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: spring-oauth-example-secret

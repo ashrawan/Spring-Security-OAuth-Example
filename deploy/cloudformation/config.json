@@ -1,0 +1,11 @@
+{
+  "action": "start",
+  "protect": true,
+  "stack_name": "spring-oauth-example",
+  "services": {
+    "route53": {"enabled": true, "hosted_zone": "example.com."},
+    "rds": {"enabled": true, "db_instance_class": "db.t3.micro"},
+    "cache": {"enabled": true, "node_type": "cache.t2.micro"},
+    "s3": {"enabled": true}
+  }
+}

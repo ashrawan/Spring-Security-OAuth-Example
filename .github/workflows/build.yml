@@ -1,0 +1,27 @@
+name: Build and Push
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Build jar
+        run: ./mvnw -B package -DskipTests
+      - name: Log in to ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          region: ${{ secrets.AWS_REGION }}
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.ECR_REGISTRY }}/spring-oauth-example:latest .
+          docker push ${{ secrets.ECR_REGISTRY }}/spring-oauth-example:latest
+
+

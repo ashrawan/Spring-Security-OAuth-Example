@@ -76,7 +76,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 ## #. Run using maven wrapper/executable or via your preferred IDE
 
 - __Note__:
-  - To run: Change datasource properties @See application.yml -> ```spring: datasource: ``` (create database "test")
+  - Configure datasource using environment variables `DB_URL`, `DB_USERNAME` and `DB_PASSWORD`.  Example:
+    ```bash
+    export DB_URL=jdbc:mysql://<rds-endpoint>:3306/test
+    export DB_USERNAME=root
+    export DB_PASSWORD=example
+    ```
   - To view flow: Change logging level as needed @See application.yml -> ```logging:```
 
 ```cmd
@@ -163,4 +168,63 @@ For all OAuth2 providers, On Successful OAuth2User Authentication Request proces
 - For Multiple properties usage from `AppProperties appProperties`, values are initialized in `@PostConstruct` to avoid code clutter
 - Uses Lombok `@Getter @Setter` for getter/setter generation
 - By Default, config classes uses Field Injection `@Autowired`, other class uses constructor injection
-- Exception thrown are handled from `@ControllerAdvice`
+ - Exception thrown are handled from `@ControllerAdvice`
+
+## Deployment
+
+- CloudFormation template for a minimal RDS MySQL instance is available under `deploy/cloudformation/rds.yml`.
+- Kubernetes manifests for running the application are located in `deploy/kubernetes` and reference secrets containing the datasource credentials and AWS access keys.
+
+### Preparing the environment
+
+1. Copy `.env.example` to `.env` and adjust credentials. The same file is used for Kubernetes secret creation and docker-compose.
+2. Edit `deploy/cloudformation/config.json` to adjust the action, protection and service settings as needed.
+3. If using GitHub Actions, define the secrets listed in `.github/workflows/README.md` (AWS credentials, `ECR_REGISTRY`, `KUBECONFIG`, etc.). The workflow in `.github/workflows/build.yml` builds and pushes the container image automatically.
+   To run locally, build the Docker image and push it to your ECR registry:
+
+```bash
+aws ecr get-login-password --region $AWS_REGION | \
+  docker login --username AWS --password-stdin $ECR_REGISTRY
+docker build -t $ECR_REGISTRY/spring-oauth-example:latest .
+docker push $ECR_REGISTRY/spring-oauth-example:latest
+```
+
+### Local development
+
+A docker-compose setup is available under `deploy/docker-compose` which starts MySQL, LocalStack and the application container. LocalStack emulates AWS services so the application can be tested without a real AWS account. Ensure you have the `.env` file in the project root then run:
+
+```bash
+cd deploy/docker-compose
+docker compose up --build
+```
+
+The application will be available on `http://localhost:8080` with MySQL exposed on port `3306` and LocalStack on `4566`.
+
+### Deploying to AWS
+
+1. Provision infrastructure using the helper script which applies `deploy/cloudformation/infra.yml`. The `config.json` file controls whether stacks are created or removed and which services are enabled:
+
+```bash
+cd deploy/cloudformation
+./deploy.sh yourdbpassword example.com.
+```
+
+You can also trigger the `Manage Infrastructure` workflow in GitHub Actions (`infra.yml`) which runs the same script in CI using the secrets you configured.
+
+Note the database endpoint from the stack outputs and update `DB_URL` in your `.env` file.
+
+2. Create the Kubernetes secret with the environment variables:
+
+```bash
+cd deploy/kubernetes
+./create-secret.sh
+```
+
+3. Deploy the application:
+
+```bash
+cd deploy/kubernetes
+./deploy.sh
+```
+
+Alternatively trigger the workflows defined in `.github/workflows`. Use `deploy.yml` for Kubernetes deployments and `infra.yml` for managing AWS resources. Redeploy by rebuilding the Docker image and running the workflows again as needed.
